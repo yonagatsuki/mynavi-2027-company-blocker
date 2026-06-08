@@ -28,6 +28,4 @@ https://raw.githubusercontent.com/yonagatsuki/mynavi-2027-company-blocker/main/m
 
 ---
 
-## 📄 License / ライセンス
 
-MIT
