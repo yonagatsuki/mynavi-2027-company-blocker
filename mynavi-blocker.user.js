@@ -7,6 +7,7 @@
 // @match        https://job.mynavi.jp/27/pc/corpinfo/searchCorpListByGenCond/*
 // @grant        none
 // @run-at       document-idle
+// @author       yonagatsuki
 // ==/UserScript==
 
 (function () {
