@@ -24,7 +24,7 @@ A Tampermonkey userscript that hides unwanted companies on Mynavi job search pag
 https://www.tampermonkey.net/
 
 2. スクリプトをインストール / Install script  
-https://raw.githubusercontent.com/yonagatsuki/mynavi-2027-company-blocker/main/mynavi-blocker.user.js
+[RikunabiPlus.js をインストール](https://raw.githubusercontent.com/yonagatsuki/Rikunabi-Plus/main/RikunabiPlus.js)
 
 ---
 
