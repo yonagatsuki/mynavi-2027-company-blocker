@@ -1,8 +1,11 @@
 // ==UserScript==
-// @name         Mynavi 2027 Company Blocker
+// @name         Mynavi 2027 Blocker
 // @namespace    https://job.mynavi.jp/
-// @version      1.2.1
-// @description  Add a hide button to each company result on Mynavi and remember hidden companies.
+// @version      1.2.2
+// @description  マイナビ2027の検索結果で企業カードを非表示にします。
+// @author       yonagatsuki
+// @homepageURL  https://github.com/yonagatsuki/mynavi-2027-company-blocker
+// @supportURL   https://github.com/yonagatsuki/mynavi-2027-company-blocker/issues
 // @match        https://job.mynavi.jp/27/pc/search/query.html*
 // @match        https://job.mynavi.jp/27/pc/corpinfo/searchCorpListByGenCond/*
 // @grant        none
@@ -29,16 +32,16 @@
   if (!isSearchResultPage()) return;
 
   const TEXT = {
-    hide: '\u4e0d\u518d\u663e\u793a',
-    titlePrefix: '\u4ee5\u540e\u9690\u85cf ',
-    panelList: '\u5c4f\u853d\u5217\u8868',
-    clear: '\u6e05\u7a7a',
-    countPrefix: '\u5df2\u5c4f\u853d ',
-    countSuffix: ' \u5bb6',
-    empty: '\u76ee\u524d\u6ca1\u6709\u5c4f\u853d\u516c\u53f8\u3002',
-    clearConfirm: '\u786e\u5b9a\u6e05\u7a7a\u6240\u6709\u5df2\u5c4f\u853d\u516c\u53f8\u5417\uff1f',
-    close: '\u5173\u95ed',
-    remove: '\u5220\u9664',
+    hide: '\u3053\u306e\u4f01\u696d\u3092\u975e\u8868\u793a',
+    titlePrefix: '\u4eca\u5f8c\u975e\u8868\u793a: ',
+    panelList: '\u975e\u8868\u793a\u30ea\u30b9\u30c8',
+    clear: '\u3059\u3079\u3066\u89e3\u9664',
+    countPrefix: '\u975e\u8868\u793a ',
+    countSuffix: ' \u793e',
+    empty: '\u73fe\u5728\u3001\u975e\u8868\u793a\u306e\u4f01\u696d\u306f\u3042\u308a\u307e\u305b\u3093\u3002',
+    clearConfirm: '\u3059\u3079\u3066\u306e\u975e\u8868\u793a\u4f01\u696d\u3092\u89e3\u9664\u3057\u307e\u3059\u304b\uff1f',
+    close: '\u9589\u3058\u308b',
+    remove: '\u89e3\u9664',
     hideViewed: '\u95b2\u89a7\u6e08\u307f\u3092\u975e\u8868\u793a',
     showViewed: '\u95b2\u89a7\u6e08\u307f\u3092\u8868\u793a',
   };
