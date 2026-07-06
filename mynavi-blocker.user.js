@@ -1,19 +1,19 @@
 // ==UserScript==
 // @name         Mynavi 2027 Company Blocker
 // @namespace    https://job.mynavi.jp/
-// @version      1.1.1
+// @version      1.2.1
 // @description  Add a hide button to each company result on Mynavi and remember hidden companies.
 // @match        https://job.mynavi.jp/27/pc/search/query.html*
 // @match        https://job.mynavi.jp/27/pc/corpinfo/searchCorpListByGenCond/*
 // @grant        none
 // @run-at       document-idle
-// @author       yonagatsuki
 // ==/UserScript==
 
 (function () {
   'use strict';
 
   const STORAGE_KEY = 'tm:mynavi2027:hiddenCompanies:v4';
+  const HIDE_VIEWED_KEY = 'tm:mynavi2027:hideViewed:v1';
   const BUTTON_CLASS = 'tm-mynavi-hide-company';
   const STYLE_ID = 'tm-mynavi-company-blocker-style';
   let didInitialRepair = false;
@@ -28,18 +28,20 @@
 
   if (!isSearchResultPage()) return;
 
- const TEXT = {
-   hide: '今後表示しない',
-   titlePrefix: '今後非表示：',
-   panelList: '非表示リスト',
-   clear: 'クリア',
-   countPrefix: '非表示件数：',
-   countSuffix: '件',
-   empty: '現在、非表示の企業はありません。',
-   clearConfirm: '非表示にした企業をすべて削除しますか？',
-   close: '閉じる',
-   remove: '削除',
- };
+  const TEXT = {
+    hide: '\u4e0d\u518d\u663e\u793a',
+    titlePrefix: '\u4ee5\u540e\u9690\u85cf ',
+    panelList: '\u5c4f\u853d\u5217\u8868',
+    clear: '\u6e05\u7a7a',
+    countPrefix: '\u5df2\u5c4f\u853d ',
+    countSuffix: ' \u5bb6',
+    empty: '\u76ee\u524d\u6ca1\u6709\u5c4f\u853d\u516c\u53f8\u3002',
+    clearConfirm: '\u786e\u5b9a\u6e05\u7a7a\u6240\u6709\u5df2\u5c4f\u853d\u516c\u53f8\u5417\uff1f',
+    close: '\u5173\u95ed',
+    remove: '\u5220\u9664',
+    hideViewed: '\u95b2\u89a7\u6e08\u307f\u3092\u975e\u8868\u793a',
+    showViewed: '\u95b2\u89a7\u6e08\u307f\u3092\u8868\u793a',
+  };
 
   const getHiddenMap = () => {
     try {
@@ -56,6 +58,14 @@
 
   const getUniqueHiddenNames = () => {
     return Array.from(new Set(Object.values(getHiddenMap()).filter(Boolean))).sort();
+  };
+
+  const getHideViewed = () => {
+    return localStorage.getItem(HIDE_VIEWED_KEY) === '1';
+  };
+
+  const saveHideViewed = (enabled) => {
+    localStorage.setItem(HIDE_VIEWED_KEY, enabled ? '1' : '0');
   };
 
   const normalizeText = (text) => {
@@ -135,6 +145,23 @@
     if (!card) return;
     card.style.display = 'none';
     card.dataset.tmMynaviHidden = companyName;
+  };
+
+  const isViewedCard = (card) => {
+    return Array.from(card.querySelectorAll('.c-label, li, span'))
+      .some((element) => normalizeText(element.textContent) === '\u95b2\u89a7\u6e08\u307f');
+  };
+
+  const hideViewedCard = (card) => {
+    if (!card) return;
+    card.style.display = 'none';
+    card.dataset.tmMynaviHiddenViewed = '1';
+  };
+
+  const showViewedCard = (card) => {
+    if (!card || card.dataset.tmMynaviHiddenViewed !== '1') return;
+    card.style.display = '';
+    delete card.dataset.tmMynaviHiddenViewed;
   };
 
   const repairPartiallyHiddenCards = () => {
@@ -343,6 +370,15 @@
     manageButton.textContent = TEXT.panelList;
     manageButton.addEventListener('click', showBlockList);
 
+    const viewedToggle = document.createElement('button');
+    viewedToggle.type = 'button';
+    viewedToggle.id = 'tm-mynavi-viewed-toggle';
+    viewedToggle.addEventListener('click', () => {
+      saveHideViewed(!getHideViewed());
+      processSearchResults();
+      updatePanelCount();
+    });
+
     const clearButton = document.createElement('button');
     clearButton.type = 'button';
     clearButton.textContent = TEXT.clear;
@@ -352,7 +388,7 @@
       location.reload();
     });
 
-    panel.append(count, manageButton, clearButton);
+    panel.append(count, viewedToggle, manageButton, clearButton);
     document.body.appendChild(panel);
     updatePanelCount();
   };
@@ -361,6 +397,11 @@
     const count = document.getElementById('tm-mynavi-blocker-count');
     if (!count) return;
     count.textContent = `${TEXT.countPrefix}${getUniqueHiddenNames().length}${TEXT.countSuffix}`;
+
+    const viewedToggle = document.getElementById('tm-mynavi-viewed-toggle');
+    if (viewedToggle) {
+      viewedToggle.textContent = getHideViewed() ? TEXT.showViewed : TEXT.hideViewed;
+    }
   };
 
   const findCompanyCards = () => {
@@ -379,6 +420,7 @@
     }
 
     const hiddenMap = getHiddenMap();
+    const hideViewed = getHideViewed();
 
     for (const card of findCompanyCards()) {
       const companyName = getCompanyNameFromCard(card);
@@ -388,6 +430,13 @@
         hideCompanyCard(card, companyName);
         continue;
       }
+
+      if (hideViewed && isViewedCard(card)) {
+        hideViewedCard(card);
+        continue;
+      }
+
+      showViewedCard(card);
 
       if (card.querySelector(`.${BUTTON_CLASS}`)) continue;
 
